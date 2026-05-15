@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MikroTik Controller</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════ TELA DE LOGIN ═══════════════════ -->
+  <div id="login-screen" class="screen active">
+    <div class="login-wrap">
+      <div class="login-brand">
+        <div class="brand-icon">⬡</div>
+        <h1>MikroTik<br/><span>Controller</span></h1>
+        <p class="brand-sub">Acesso via SSH Seguro</p>
+      </div>
+
+      <form class="login-form" id="login-form" autocomplete="off">
+        <div class="field-group">
+          <label for="inp-user">Usuário</label>
+          <input type="text" id="inp-user" placeholder="admin" autocomplete="username" />
+        </div>
+        <div class="field-group">
+          <label for="inp-pass">Senha</label>
+          <input type="password" id="inp-pass" placeholder="••••••••" autocomplete="current-password" />
+        </div>
+        <div id="login-error" class="login-error hidden">Usuário ou senha inválidos.</div>
+        <button type="submit" class="btn-login" id="btn-login">
+          <span class="btn-login-text">Entrar</span>
+          <span class="btn-login-spinner hidden">⟳</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ TELA PRINCIPAL ═══════════════════ -->
+  <div id="main-screen" class="screen">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon-sm">⬡</div>
+        <span>MikroTik</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="control">
+          <span class="nav-icon">◈</span> Controle
+        </button>
+        <button class="nav-item" data-tab="logs">
+          <span class="nav-icon">≡</span> Logs
+        </button>
+        <button class="nav-item" data-tab="status">
+          <span class="nav-icon">◉</span> Status
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="conn-info">
+          <div class="conn-dot" id="conn-dot"></div>
+          <span id="conn-label">Verificando...</span>
+        </div>
+        <button class="btn-logout" id="btn-logout">Sair</button>
+      </div>
+    </aside>
+
+    <!-- Conteúdo principal -->
+    <main class="main-content">
+
+      <!-- Tab: Controle -->
+      <section class="tab-panel active" id="tab-control">
+        <header class="panel-header">
+          <div>
+            <h2>Controle de Interfaces</h2>
+            <p class="panel-sub">Clique para executar o comando via SSH no dispositivo</p>
+          </div>
+          <div id="mock-badge" class="mock-badge hidden">MODO SIMULAÇÃO</div>
+        </header>
+
+        <div class="cards-section">
+          <h3 class="section-label">🔴 Desabilitar</h3>
+          <div class="cards-grid">
+
+            <button class="cmd-card danger" data-action="disable_ether1">
+              <div class="card-top">
+                <span class="card-port">eth1</span>
+                <span class="card-status-dot"></span>
+              </div>
+              <div class="card-label">Desabilitar ether1</div>
+              <code class="card-cmd">disabled=yes</code>
+            </button>
+
+            <button class="cmd-card danger" data-action="disable_ether2">
+              <div class="card-top">
+                <span class="card-port">eth2</span>
+                <span class="card-status-dot"></span>
+              </div>
+              <div class="card-label">Desabilitar ether2</div>
+              <code class="card-cmd">disabled=yes</code>
+            </button>
+
+            <button class="cmd-card danger" data-action="disable_ether3">
+              <div class="card-top">
+                <span class="card-port">eth3</span>
+                <span class="card-status-dot"></span>
+              </div>
+              <div class="card-label">Desabilitar ether3</div>
+              <code class="card-cmd">disabled=yes</code>
+            </button>
+
+          </div>
+        </div>
+
+        <div class="cards-section">
+          <h3 class="section-label">🟢 Habilitar</h3>
+          <div class="cards-grid">
+
+            <button class="cmd-card success" data-action="enable_ether4">
+              <div class="card-top">
+                <span class="card-port">eth4</span>
+                <span class="card-status-dot"></span>
+              </div>
+              <div class="card-label">Habilitar ether4</div>
+              <code class="card-cmd">disabled=no</code>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- Resultado -->
+        <div id="result-panel" class="result-panel hidden">
+          <div class="result-icon" id="result-icon"></div>
+          <div class="result-body">
+            <div class="result-title" id="result-title"></div>
+            <code class="result-cmd" id="result-cmd"></code>
+            <p class="result-msg" id="result-msg"></p>
+            <span class="result-time" id="result-time"></span>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading-panel" class="loading-panel hidden">
+          <div class="ssh-loader">
+            <span class="ssh-line" id="ssh-line">Iniciando conexão SSH...</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab: Logs -->
+      <section class="tab-panel" id="tab-logs">
+        <header class="panel-header">
+          <div>
+            <h2>Log de Auditoria</h2>
+            <p class="panel-sub">Últimas 100 ações executadas no sistema</p>
+          </div>
+          <button class="btn-refresh" id="btn-refresh-logs">↻ Atualizar</button>
+        </header>
+        <div id="logs-container" class="logs-container">
+          <p class="logs-empty">Carregando logs...</p>
+        </div>
+      </section>
+
+      <!-- Tab: Status -->
+      <section class="tab-panel" id="tab-status">
+        <header class="panel-header">
+          <div>
+            <h2>Status do Sistema</h2>
+            <p class="panel-sub">Informações do backend e do dispositivo alvo</p>
+          </div>
+        </header>
+        <div id="status-container" class="status-container">
+          <p class="logs-empty">Carregando...</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
